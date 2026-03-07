@@ -146,25 +146,26 @@ export class AiTranslate implements ITranslate {
      */
     private async validateTranslationSource(): Promise<boolean> {
         try {
-            const commentTranslateConfig = window.activeTextEditor 
-                ? await import('vscode').then(vscode => 
-                    vscode.workspace.getConfiguration('commentTranslate')
-                  )
-                : null;
-                
-            if (!commentTranslateConfig) {
-                return true; // Assume valid if no active editor
-            }
-
+            const vscode = await import('vscode');
+            const commentTranslateConfig = vscode.workspace.getConfiguration('commentTranslate');
             const source = commentTranslateConfig.get<string>('source', '');
-            const validSources = [
+            
+            // Check if source contains our extension ID (handles various formats)
+            // Possible formats:
+            // - "ai-powered-comment-translate-extension"
+            // - "Cheng-MaoMao.ai-powered-comment-translate-extension"
+            // - "Cheng-MaoMao.ai-powered-comment-translate-extension-ai-powered-comment-translate-extension"
+            // - "AI translate" (display name)
+            const validIdentifiers = [
                 'ai-powered-comment-translate-extension',
                 'AI translate'
             ];
             
-            return validSources.includes(source);
-        } catch {
-            // If we can't check, assume it's valid
+            // Check if source includes any valid identifier
+            return validIdentifiers.some(id => source.includes(id));
+        } catch (error) {
+            console.error('Failed to validate translation source:', error);
+            // If we can't check, assume it's valid to allow usage
             return true;
         }
     }
