@@ -140,7 +140,7 @@ Issues and Pull Requests are welcome!
 ### 2.0.0 (Refactored Version)
 
 - 🏗️ **Architecture Refactor**: Adopted layered architecture, improved code quality and maintainability
-- 🗑️ Removed Gemini support, focused on OpenAI compatible mode
+- 🗑️ Removed Gemini support
 - 🌍 Improve settings interface multi-language support (Simplified Chinese, English)
 - 🛡️ Enhanced error handling and retry mechanisms
 - 💾 Added LRU caching and request deduplication
