@@ -10,6 +10,17 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Changed
 
+- 🏗️ **架构重构**：采用分层架构，提升代码质量和可维护性
+- 🗑️ 移除 Gemini 支持
+- 🌍 完善设置界面多语言支持（简体中文、英语）
+- 🛡️ 增强错误处理和重试机制
+- 💾 添加 LRU 缓存和请求去重
+- 📊 优化问题面板翻译性能
+
+## [2.0.0] - 2026-03-07
+
+### Changed
+
 - 🔧 优化代码结构
 
 ## [1.0.4] - 2025-05-12
