@@ -6,6 +6,7 @@ import { OpenAIClient } from '../api/OpenAIClient';
 import { BaseClient } from '../api/BaseClient';
 import { TranslationError, ErrorCode } from '../errors/TranslationError';
 
+// 命名上下文接口
 export interface NamingContext {
     variableName: string;
     paragraph: string;
@@ -24,7 +25,7 @@ export class NamingService {
     }
 
     /**
-     * Update configuration
+     * 更新配置
      */
     updateConfig(config: AiTranslateConfig): void {
         this.config = config;
@@ -32,14 +33,14 @@ export class NamingService {
     }
 
     /**
-     * Perform AI naming
+     * 执行AI命名
      */
     async aiNaming(variableName: string, languageId: string): Promise<string> {
-        // Get context from active editor
+        // 从活动编辑器获取上下文
         const context = await this.getNamingContext(variableName, languageId);
         
         try {
-            // Build prompt
+            // 构建提示词
             const prompt = this.promptBuilder.buildNamingPrompt(
                 context.variableName,
                 context.paragraph,
@@ -48,13 +49,13 @@ export class NamingService {
                 this.config.customNamingPrompt
             );
 
-            // Get client
+            // 获取客户端
             const client = this.getClient();
 
-            // Execute naming
+            // 执行命名
             const result = await client.translate(prompt);
 
-            // Validate result (should be a valid identifier)
+            // 验证结果（应该是有效的标识符）
             return this.validateNamingResult(result.trim());
         } catch (error) {
             this.handleError(error);
@@ -63,7 +64,7 @@ export class NamingService {
     }
 
     /**
-     * Get naming context from editor
+     * 从编辑器获取命名上下文
      */
     private async getNamingContext(variableName: string, languageId: string): Promise<NamingContext> {
         const editor = window.activeTextEditor;
@@ -86,7 +87,7 @@ export class NamingService {
     }
 
     /**
-     * Get variable's paragraph context
+     * 获取变量所在段落上下文
      */
     private async getVariableParagraph(document: TextDocument, lineNumber: number): Promise<string> {
         const currentLine = document.lineAt(lineNumber);
@@ -94,20 +95,20 @@ export class NamingService {
     }
 
     /**
-     * Validate and clean naming result
+     * 验证并清理命名结果
      */
     private validateNamingResult(result: string): string {
-        // Remove quotes if present
+        // 移除引号（如果存在）
         result = result.replace(/^["'`]+|["'`]+$/g, '');
         
-        // Remove any explanatory text (take only first line or first word)
+        // 移除任何解释性文本（只取第一行或第一个词）
         const lines = result.split(/\r?\n/);
         const firstLine = lines[0].trim();
         
-        // If result contains spaces, take only the first word
+        // 如果结果包含空格，只取第一个词
         const words = firstLine.split(/\s+/);
         if (words.length > 1) {
-            // Try to find a camelCase or snake_case identifier
+            // 尝试查找驼峰命名或下划线命名的标识符
             const identifierPattern = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
             for (const word of words) {
                 const cleanWord = word.replace(/[^a-zA-Z0-9_]/g, '');
@@ -117,10 +118,10 @@ export class NamingService {
             }
         }
         
-        // Remove any non-identifier characters
+        // 移除任何非标识符字符
         result = firstLine.replace(/[^a-zA-Z0-9_]/g, '');
         
-        // Ensure it starts with a letter or underscore
+        // 确保以字母或下划线开头
         if (!/^[a-zA-Z_]/.test(result)) {
             result = '_' + result;
         }
@@ -129,7 +130,7 @@ export class NamingService {
     }
 
     /**
-     * Get or create API client
+     * 获取或创建API客户端
      */
     private getClient(): BaseClient {
         if (!this.client) {
@@ -144,7 +145,7 @@ export class NamingService {
     }
 
     /**
-     * Update/create API client based on config
+     * 根据配置更新/创建API客户端
      */
     private updateClient(): void {
         const clientConfig = {
@@ -153,16 +154,16 @@ export class NamingService {
             apiEndpoint: this.config.apiEndpoint,
             temperature: this.config.temperature,
             maxTokens: this.config.maxTokens,
-            streaming: false, // Naming doesn't need streaming
+            streaming: false, // 命名不需要流式传输
             filterThinkingContent: this.config.filterThinkingContent
         };
 
-        // Only OpenAI is supported
+        // 仅支持OpenAI
         this.client = new OpenAIClient(clientConfig);
     }
 
     /**
-     * Handle error
+     * 处理错误
      */
     private handleError(error: unknown): void {
         if (error instanceof TranslationError) {

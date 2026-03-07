@@ -1,6 +1,7 @@
 // src/utils/debounce.ts
 import { DebounceOptions } from '../types';
 
+// 防抖函数类型
 export type DebouncedFunction<T extends (...args: any[]) => any> = {
     (...args: Parameters<T>): ReturnType<T>;
     cancel(): void;
@@ -8,7 +9,7 @@ export type DebouncedFunction<T extends (...args: any[]) => any> = {
 };
 
 /**
- * Create a debounced function
+ * 创建防抖函数
  */
 export function debounce<T extends (...args: any[]) => any>(
     func: T,
@@ -127,7 +128,7 @@ export function debounce<T extends (...args: any[]) => any>(
 }
 
 /**
- * Create a throttled function (using debounce)
+ * 创建节流函数（使用防抖实现）
  */
 export function throttle<T extends (...args: any[]) => any>(
     func: T,

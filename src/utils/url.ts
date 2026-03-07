@@ -1,7 +1,7 @@
 // src/utils/url.ts
 
 /**
- * Normalize API endpoint URL
+ * 标准化API端点URL
  */
 export function normalizeApiUrl(endpoint: string, path: string = '/chat/completions'): string {
     if (!endpoint) {
@@ -10,11 +10,11 @@ export function normalizeApiUrl(endpoint: string, path: string = '/chat/completi
 
     let url = endpoint.trim();
     
-    // Fix http:/ and https:/ format errors
+    // 修复http:/和https:/格式错误
     url = url.replace(/^http:\/(?!\/)/, 'http://');
     url = url.replace(/^https:\/(?!\/)/, 'https://');
     
-    // Normalize multiple slashes in protocol and path
+    // 标准化协议和路径中的多个斜杠
     const parts = url.split('://');
     if (parts.length === 2) {
         const protocol = parts[0];
@@ -22,18 +22,18 @@ export function normalizeApiUrl(endpoint: string, path: string = '/chat/completi
         url = `${protocol}://${rest}`;
     }
     
-    // If URL already contains the path, return as is
+    // 如果URL已经包含路径，直接返回
     if (url.endsWith(path)) {
         return url;
     }
     
-    // Remove trailing slash and add path
+    // 移除末尾斜杠并添加路径
     url = url.replace(/\/$/, '');
     return `${url}${path}`;
 }
 
 /**
- * Validate URL format
+ * 验证URL格式
  */
 export function isValidUrl(url: string): boolean {
     if (!url) {
@@ -49,7 +49,7 @@ export function isValidUrl(url: string): boolean {
 }
 
 /**
- * Validate HTTP/HTTPS URL
+ * 验证HTTP/HTTPS URL
  */
 export function isValidHttpUrl(url: string): boolean {
     if (!isValidUrl(url)) {
@@ -65,7 +65,7 @@ export function isValidHttpUrl(url: string): boolean {
 }
 
 /**
- * Extract domain from URL
+ * 从URL提取域名
  */
 export function extractDomain(url: string): string | null {
     if (!isValidUrl(url)) {
@@ -81,7 +81,7 @@ export function extractDomain(url: string): string | null {
 }
 
 /**
- * Safely join URL parts
+ * 安全地拼接URL路径
  */
 export function safeUrlJoin(base: string, ...paths: string[]): string {
     if (!base) {

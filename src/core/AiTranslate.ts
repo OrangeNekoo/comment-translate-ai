@@ -8,7 +8,7 @@ import { AiTranslateConfig } from '../types';
 import { TranslationError } from '../errors/TranslationError';
 
 export class AiTranslate implements ITranslate {
-    // ITranslate interface properties
+    // ITranslate接口属性
     readonly id = 'ai-powered-comment-translate-extension';
     readonly name = 'AI translate';
 
@@ -17,17 +17,17 @@ export class AiTranslate implements ITranslate {
     private namingService: NamingService;
 
     constructor() {
-        // Initialize config manager
+        // 初始化配置管理器
         this.configManager = new ConfigManager();
         
-        // Get initial config
+        // 获取初始配置
         const config = this.configManager.getConfig();
         
-        // Initialize services
+        // 初始化服务
         this.translationService = new TranslationService(config);
         this.namingService = new NamingService(config);
         
-        // Listen for config changes
+        // 监听配置变化
         this.configManager.onConfigChange(() => {
             const newConfig = this.configManager.getConfig();
             this.translationService.updateConfig(newConfig);
@@ -36,24 +36,24 @@ export class AiTranslate implements ITranslate {
     }
 
     /**
-     * Maximum translation length
+     * 最大翻译长度
      */
     get maxLen(): number {
         return 3000;
     }
 
     /**
-     * Generate link (not applicable for AI translation, return content as-is)
+     * 生成链接（AI翻译不需要此功能，直接返回原内容）
      */
     link(content: string, _options: ITranslateOptions): string {
         return content;
     }
 
     /**
-     * Main translation method (ITranslate interface)
+     * 主翻译方法（ITranslate接口）
      */
     async translate(content: string, options: ITranslateOptions): Promise<string> {
-        // Validate config before translation
+        // 翻译前验证配置
         const validation = this.configManager.validate();
         if (!validation.valid) {
             const errorMsg = `配置错误: ${validation.errors.join(', ')}`;
@@ -72,10 +72,10 @@ export class AiTranslate implements ITranslate {
     }
 
     /**
-     * AI Naming method
+     * AI命名方法
      */
     async aiNaming(variableName: string, languageId: string): Promise<string> {
-        // Validate config
+        // 验证配置
         const validation = this.configManager.validate();
         if (!validation.valid) {
             const errorMsg = `配置错误: ${validation.errors.join(', ')}`;
@@ -83,7 +83,7 @@ export class AiTranslate implements ITranslate {
             throw new Error(errorMsg);
         }
 
-        // Check if translation source is AI translate
+        // 检查翻译源是否为AI translate
         const isValidSource = await this.validateTranslationSource();
         if (!isValidSource) {
             window.showInformationMessage('请将翻译源选择为 AI translate');
@@ -101,12 +101,12 @@ export class AiTranslate implements ITranslate {
     }
 
     /**
-     * Detect language
+     * 检测语言
      */
     async detectLanguage(text: string): Promise<string> {
         const validation = this.configManager.validate();
         if (!validation.valid) {
-            console.error('Language detection failed: config invalid', validation.errors);
+            console.error('语言检测失败：配置无效', validation.errors);
             return 'unknown';
         }
 
@@ -114,35 +114,35 @@ export class AiTranslate implements ITranslate {
     }
 
     /**
-     * Get current configuration
+     * 获取当前配置
      */
     getConfig(): Readonly<AiTranslateConfig> {
         return this.configManager.getConfig();
     }
 
     /**
-     * Get cache statistics
+     * 获取缓存统计信息
      */
     getCacheStats(): { size: number; hits: number; misses: number; hitRate: number } {
         return this.translationService.getCacheStats();
     }
 
     /**
-     * Clear translation cache
+     * 清除翻译缓存
      */
     clearCache(): void {
         this.translationService.clearCache();
     }
 
     /**
-     * Dispose resources
+     * 释放资源
      */
     dispose(): void {
         this.configManager.dispose();
     }
 
     /**
-     * Validate that current translation source is AI translate
+     * 验证当前翻译源是否为AI translate
      */
     private async validateTranslationSource(): Promise<boolean> {
         try {
@@ -150,22 +150,22 @@ export class AiTranslate implements ITranslate {
             const commentTranslateConfig = vscode.workspace.getConfiguration('commentTranslate');
             const source = commentTranslateConfig.get<string>('source', '');
             
-            // Check if source contains our extension ID (handles various formats)
-            // Possible formats:
+            // 检查源是否包含我们的扩展ID（处理各种格式）
+            // 可能的格式：
             // - "ai-powered-comment-translate-extension"
             // - "Cheng-MaoMao.ai-powered-comment-translate-extension"
             // - "Cheng-MaoMao.ai-powered-comment-translate-extension-ai-powered-comment-translate-extension"
-            // - "AI translate" (display name)
+            // - "AI translate"（显示名称）
             const validIdentifiers = [
                 'ai-powered-comment-translate-extension',
                 'AI translate'
             ];
             
-            // Check if source includes any valid identifier
+            // 检查源是否包含任何有效的标识符
             return validIdentifiers.some(id => source.includes(id));
         } catch (error) {
-            console.error('Failed to validate translation source:', error);
-            // If we can't check, assume it's valid to allow usage
+            console.error('验证翻译源失败：', error);
+            // 如果无法检查，假设它是有效的以允许使用
             return true;
         }
     }

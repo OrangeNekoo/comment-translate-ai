@@ -20,14 +20,14 @@ export class ConfigManager implements Disposable {
     }
 
     /**
-     * Get current configuration
+     * 获取当前配置
      */
     getConfig(): Readonly<AiTranslateConfig> {
         return Object.freeze({ ...this.config });
     }
 
     /**
-     * Refresh configuration from VS Code settings
+     * 从VS Code设置刷新配置
      */
     refresh(): void {
         this.config = this.loadConfig();
@@ -35,7 +35,7 @@ export class ConfigManager implements Disposable {
     }
 
     /**
-     * Listen for configuration changes
+     * 监听配置变化
      */
     onConfigChange(listener: () => void): Disposable {
         this.changeListeners.add(listener);
@@ -47,7 +47,7 @@ export class ConfigManager implements Disposable {
     }
 
     /**
-     * Validate current configuration
+     * 验证当前配置
      */
     validate(): ValidationResult {
         const errors: string[] = [];
@@ -92,21 +92,21 @@ export class ConfigManager implements Disposable {
     }
 
     /**
-     * Get default model name for model type
+     * 获取模型类型的默认模型名称
      */
     getDefaultModelName(_modelType: ModelType): string {
         return 'gpt-3.5-turbo';
     }
 
     /**
-     * Get default API endpoint for model type
+     * 获取模型类型的默认API端点
      */
     getDefaultApiEndpoint(_modelType: ModelType): string {
         return 'https://api.openai.com/v1';
     }
 
     /**
-     * Load configuration from VS Code settings
+     * 从VS Code设置加载配置
      */
     private loadConfig(): AiTranslateConfig {
         const configuration = workspace.getConfiguration(CONFIG_PREFIX);
@@ -129,7 +129,7 @@ export class ConfigManager implements Disposable {
     }
 
     /**
-     * Handle configuration change event
+     * 处理配置变更事件
      */
     private handleConfigChange(event: ConfigurationChangeEvent): void {
         if (event.affectsConfiguration(CONFIG_PREFIX)) {
@@ -139,20 +139,20 @@ export class ConfigManager implements Disposable {
     }
 
     /**
-     * Notify all listeners of configuration change
+     * 通知所有监听器配置已变更
      */
     private notifyListeners(): void {
         for (const listener of Array.from(this.changeListeners)) {
             try {
                 listener();
             } catch (error) {
-                console.error('配置变更监听器执行失败:', error);
+                console.error('配置变更监听器执行失败：', error);
             }
         }
     }
 
     /**
-     * Dispose resources
+     * 释放资源
      */
     dispose(): void {
         for (const disposable of this.disposables) {

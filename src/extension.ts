@@ -5,44 +5,44 @@ import { TranslationService } from './services/TranslationService';
 import { ProblemTranslationService } from './services/ProblemTranslationService';
 import { ConfigManager } from './core/ConfigManager';
 
-// Extension exports interface
+// 扩展导出接口
 interface ExtensionExports {
     extendTranslate: (registry: (key: string, ctor: new () => any) => void) => void;
 }
 
 /**
- * Extension activation entry point
+ * 扩展激活入口函数
  */
 export function activate(context: vscode.ExtensionContext): ExtensionExports {
-    // Create main AI translate instance
+    // 创建主AI翻译实例
     const aiTranslate = new AiTranslate();
     
-    // Create config manager for problem translation service
+    // 创建问题翻译服务所需的配置管理器
     const configManager = new ConfigManager();
     const config = configManager.getConfig();
     
-    // Create translation service for problem translation
+    // 创建用于问题翻译的翻译服务
     const translationService = new TranslationService(config);
     
-    // Create and start problem translation service
+    // 创建并启动问题翻译服务
     const problemTranslationService = new ProblemTranslationService(config, translationService);
     
-    // Listen for config changes
+    // 监听配置变化
     const configDisposable = configManager.onConfigChange(() => {
         const newConfig = configManager.getConfig();
         translationService.updateConfig(newConfig);
         problemTranslationService.updateConfig(newConfig);
     });
     
-    // Start problem translation service
+    // 启动问题翻译服务
     problemTranslationService.start();
     
-    // Register AI naming command
+    // 注册AI命名命令
     const namingCommand = vscode.commands.registerCommand('aiTranslate.aiNaming', async () => {
         await handleAiNaming(aiTranslate);
     });
     
-    // Register disposables
+    // 注册需要释放的资源
     context.subscriptions.push(
         namingCommand,
         configDisposable,
@@ -56,7 +56,7 @@ export function activate(context: vscode.ExtensionContext): ExtensionExports {
         }
     );
     
-    // Return extension exports for translation source registration
+    // 返回扩展导出，用于注册翻译源
     return {
         extendTranslate: (registry: (key: string, ctor: new () => any) => void) => {
             registry('ai-powered-comment-translate-extension', AiTranslate);
@@ -65,14 +65,14 @@ export function activate(context: vscode.ExtensionContext): ExtensionExports {
 }
 
 /**
- * Extension deactivation
+ * 扩展停用函数
  */
 export function deactivate(): void {
-    // Cleanup is handled by disposables
+    // 资源清理由disposables处理
 }
 
 /**
- * Handle AI naming command
+ * 处理AI命名命令
  */
 async function handleAiNaming(aiTranslate: AiTranslate): Promise<void> {
     const editor = vscode.window.activeTextEditor;
@@ -92,7 +92,7 @@ async function handleAiNaming(aiTranslate: AiTranslate): Promise<void> {
     try {
         const translatedName = await aiTranslate.aiNaming(text, languageId);
         
-        // Replace selected text with translated name
+        // 用翻译后的名称替换选中的文本
         await editor.edit(editBuilder => {
             editBuilder.replace(selection, translatedName);
         });

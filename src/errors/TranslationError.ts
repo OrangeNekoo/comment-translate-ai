@@ -1,5 +1,6 @@
 // src/errors/TranslationError.ts
 
+// 错误代码枚举
 export enum ErrorCode {
     CONFIG_MISSING_API_KEY = 'CONFIG_MISSING_API_KEY',
     CONFIG_INVALID_ENDPOINT = 'CONFIG_INVALID_ENDPOINT',
@@ -15,12 +16,14 @@ export enum ErrorCode {
     UNKNOWN_ERROR = 'UNKNOWN_ERROR'
 }
 
+// 错误详情接口
 export interface ErrorDetails {
     code: ErrorCode;
     retryable: boolean;
     userMessage: string;
 }
 
+// 错误代码映射表
 export const ErrorCodeMap: Record<ErrorCode, ErrorDetails> = {
     [ErrorCode.CONFIG_MISSING_API_KEY]: {
         code: ErrorCode.CONFIG_MISSING_API_KEY,
@@ -84,6 +87,7 @@ export const ErrorCodeMap: Record<ErrorCode, ErrorDetails> = {
     }
 };
 
+// 翻译错误类
 export class TranslationError extends Error {
     public readonly code: ErrorCode;
     public readonly retryable: boolean;
@@ -107,16 +111,17 @@ export class TranslationError extends Error {
         this.originalError = originalError;
         this.timestamp = Date.now();
 
-        // Fix prototype chain for instanceof checks
+        // 修复原型链，以便instanceof检查正常工作
         Object.setPrototypeOf(this, TranslationError.prototype);
     }
 
+    // 从Axios错误创建翻译错误
     static fromAxiosError(error: any): TranslationError {
         if (!error) {
             return new TranslationError(ErrorCode.UNKNOWN_ERROR);
         }
 
-        // Network errors
+        // 网络错误
         if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
             return new TranslationError(ErrorCode.NETWORK_TIMEOUT, error);
         }
@@ -127,7 +132,7 @@ export class TranslationError extends Error {
             return new TranslationError(ErrorCode.NETWORK_OFFLINE, error);
         }
 
-        // HTTP errors
+        // HTTP错误
         const status = error.response?.status;
         if (status === 401) {
             return new TranslationError(ErrorCode.API_AUTHENTICATION, error);
@@ -139,7 +144,7 @@ export class TranslationError extends Error {
             return new TranslationError(ErrorCode.API_QUOTA_EXCEEDED, error);
         }
 
-        // API response errors
+        // API响应错误
         if (error.response?.data?.error) {
             return new TranslationError(
                 ErrorCode.API_INVALID_RESPONSE,
@@ -151,6 +156,7 @@ export class TranslationError extends Error {
         return new TranslationError(ErrorCode.UNKNOWN_ERROR, error);
     }
 
+    // 转换为JSON对象
     toJSON(): object {
         return {
             name: this.name,

@@ -5,6 +5,7 @@ import { TranslationResult, ClientConfig, RetryConfig } from '../types';
 import { TranslationError, ErrorCode } from '../errors/TranslationError';
 import { normalizeApiUrl } from '../utils/url';
 
+// OpenAI响应接口
 interface OpenAIResponse {
     choices: Array<{
         message?: { content: string; };
@@ -99,7 +100,7 @@ export class OpenAIClient extends BaseClient {
                             if (json.choices?.[0]?.delta?.content) {
                                 yield json.choices[0].delta.content;
                             }
-                        } catch (e) { console.debug('Stream parse error:', e); }
+                        } catch (e) { console.debug('流式解析错误：', e); }
                     }
                 }
             }

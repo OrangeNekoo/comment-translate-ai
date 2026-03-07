@@ -11,11 +11,11 @@ export class CacheService {
     constructor(options: CacheOptions = {}) {
         this.cache = new Map();
         this.maxSize = options.maxSize || 1000;
-        this.ttl = options.ttl || 30 * 60 * 1000; // 30 minutes
+        this.ttl = options.ttl || 30 * 60 * 1000; // 30分钟
     }
 
     /**
-     * Generate cache key
+     * 生成缓存键
      */
     static generateKey(content: string, targetLang: string, modelType: string): string {
         const contentHash = this.simpleHash(content);
@@ -23,7 +23,7 @@ export class CacheService {
     }
 
     /**
-     * Simple string hash
+     * 简单字符串哈希
      */
     private static simpleHash(str: string): string {
         let hash = 0;
@@ -36,7 +36,7 @@ export class CacheService {
     }
 
     /**
-     * Get cached value
+     * 获取缓存值
      */
     get(key: string): string | undefined {
         const entry = this.cache.get(key);
@@ -58,7 +58,7 @@ export class CacheService {
     }
 
     /**
-     * Set cache value
+     * 设置缓存值
      */
     set(key: string, value: string): void {
         if (this.cache.size >= this.maxSize && !this.cache.has(key)) {
@@ -73,7 +73,7 @@ export class CacheService {
     }
 
     /**
-     * Check if key exists
+     * 检查键是否存在
      */
     has(key: string): boolean {
         const entry = this.cache.get(key);
@@ -88,14 +88,14 @@ export class CacheService {
     }
 
     /**
-     * Delete cache entry
+     * 删除缓存条目
      */
     delete(key: string): boolean {
         return this.cache.delete(key);
     }
 
     /**
-     * Clear all cache
+     * 清除所有缓存
      */
     clear(): void {
         this.cache.clear();
@@ -104,7 +104,7 @@ export class CacheService {
     }
 
     /**
-     * Get cache statistics
+     * 获取缓存统计信息
      */
     getStats(): { size: number; hits: number; misses: number; hitRate: number } {
         const total = this.hits + this.misses;
@@ -117,14 +117,14 @@ export class CacheService {
     }
 
     /**
-     * Check if entry is expired
+     * 检查条目是否过期
      */
     private isExpired(entry: CacheEntry): boolean {
         return Date.now() - entry.timestamp > this.ttl;
     }
 
     /**
-     * LRU eviction strategy
+     * LRU淘汰策略
      */
     private evictLRU(): void {
         if (this.cache.size === 0) {
@@ -150,7 +150,7 @@ export class CacheService {
     }
 
     /**
-     * Clean up expired entries
+     * 清理过期条目
      */
     cleanup(): number {
         let cleaned = 0;

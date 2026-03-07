@@ -20,7 +20,7 @@ export class PromptBuilder {
     };
 
     /**
-     * Build translation prompt
+     * 构建翻译提示词
      */
     buildTranslatePrompt(content: string, targetLang: string, customPrompt?: string): string {
         if (customPrompt && customPrompt.trim()) {
@@ -37,7 +37,7 @@ export class PromptBuilder {
     }
 
     /**
-     * Build naming prompt
+     * 构建命名提示词
      */
     buildNamingPrompt(variableName: string, paragraph: string, languageId: string, namingRules: NamingRuleType = 'default', customPrompt?: string): string {
         if (customPrompt && customPrompt.trim()) {
@@ -62,7 +62,7 @@ export class PromptBuilder {
     }
 
     /**
-     * Build language detection prompt
+     * 构建语言检测提示词
      */
     buildLanguageDetectionPrompt(text: string): string {
         return this.fillTemplate(
@@ -72,7 +72,7 @@ export class PromptBuilder {
     }
 
     /**
-     * Validate custom prompt format
+     * 验证自定义提示词格式
      */
     validateCustomPrompt(type: PromptType, prompt: string): boolean {
         switch (type) {
@@ -88,7 +88,7 @@ export class PromptBuilder {
     }
 
     /**
-     * Fill template with variables
+     * 填充模板变量
      */
     private fillTemplate(template: string, variables: Record<string, string>): string {
         return template.replace(/\$\{(\w+)\}/g, (match, key) => {
@@ -97,7 +97,7 @@ export class PromptBuilder {
     }
 
     /**
-     * Get default template
+     * 获取默认模板
      */
     static getDefaultTemplate(type: PromptType): string {
         return PromptBuilder.DEFAULT_TEMPLATES[type];

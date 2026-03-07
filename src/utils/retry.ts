@@ -2,6 +2,7 @@
 import { TranslationError, ErrorCode } from '../errors/TranslationError';
 import { RetryConfig } from '../types';
 
+// 默认重试配置
 const DEFAULT_RETRY_CONFIG: RetryConfig = {
     maxRetries: 3,
     baseDelay: 1000,
@@ -10,16 +11,16 @@ const DEFAULT_RETRY_CONFIG: RetryConfig = {
 };
 
 /**
- * Calculate exponential backoff delay
+ * 计算指数退避延迟
  */
 function calculateBackoff(attempt: number, config: RetryConfig): number {
-    // Exponential backoff: baseDelay * 2^attempt
+    // 指数退避：baseDelay * 2^attempt
     let delay = config.baseDelay * Math.pow(2, attempt);
     
-    // Cap at maxDelay
+    // 限制最大延迟
     delay = Math.min(delay, config.maxDelay);
     
-    // Add random jitter (±25%)
+    // 添加随机抖动（±25%）
     if (config.jitter) {
         const jitter = delay * 0.25 * (Math.random() * 2 - 1);
         delay = delay + jitter;
@@ -29,14 +30,14 @@ function calculateBackoff(attempt: number, config: RetryConfig): number {
 }
 
 /**
- * Sleep function
+ * 睡眠函数
  */
 function sleep(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 /**
- * Execute function with retry logic
+ * 使用重试逻辑执行函数
  */
 export async function withRetry<T>(
     fn: () => Promise<T>,
@@ -51,36 +52,36 @@ export async function withRetry<T>(
             const result = await fn();
             return result;
         } catch (error) {
-            // Convert error
+            // 转换错误
             if (error instanceof TranslationError) {
                 lastError = error;
             } else {
                 lastError = TranslationError.fromAxiosError(error);
             }
             
-            // If this is the last attempt, throw the error
+            // 如果是最后一次尝试，抛出错误
             if (attempt === retryConfig.maxRetries) {
                 break;
             }
             
-            // If error is not retryable, throw immediately
+            // 如果错误不可重试，立即抛出
             if (!lastError.retryable) {
                 throw lastError;
             }
             
-            // Calculate and wait for delay
+            // 计算并等待延迟
             const delay = calculateBackoff(attempt, retryConfig);
-            console.log(`${operationName} failed, retrying in ${delay}ms (${attempt + 1}/${retryConfig.maxRetries})`);
+            console.log(`${operationName}失败，${delay}ms后重试（${attempt + 1}/${retryConfig.maxRetries}）`);
             await sleep(delay);
         }
     }
     
-    // All retries failed
+    // 所有重试都失败了
     throw lastError || new TranslationError(ErrorCode.UNKNOWN_ERROR);
 }
 
 /**
- * Create a retryable function wrapper
+ * 创建可重试的函数包装器
  */
 export function createRetryableFunction<T extends (...args: any[]) => Promise<any>>(
     fn: T,

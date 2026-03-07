@@ -19,30 +19,30 @@ export abstract class BaseClient {
     }
 
     /**
-     * Execute translation (Template Method)
+     * 执行翻译（模板方法模式）
      */
     async translate(prompt: string): Promise<string> {
-        // Validate configuration
+        // 验证配置
         this.validateConfig();
 
-        // Execute request with retry
+        // 使用重试机制执行请求
         const result = await withRetry(
             () => this.doTranslate(prompt),
             this.retryConfig,
             '翻译请求'
         );
 
-        // Post-process
+        // 后处理
         return this.postProcess(result.text);
     }
 
     /**
-     * Execute actual translation request (implemented by subclasses)
+     * 执行实际翻译请求（由子类实现）
      */
     protected abstract doTranslate(prompt: string): Promise<TranslationResult>;
 
     /**
-     * Validate configuration (can be extended by subclasses)
+     * 验证配置（可由子类扩展）
      */
     protected validateConfig(): void {
         if (!this.config.apiKey || this.config.apiKey.trim() === '') {
@@ -55,13 +55,13 @@ export abstract class BaseClient {
     }
 
     /**
-     * Post-process translation result
+     * 后处理翻译结果
      */
     protected postProcess(text: string): string {
-        // Remove leading/trailing whitespace
+        // 移除首尾空白
         text = text.trim();
         
-        // Filter thinking content if configured
+        // 如果配置为过滤思考内容
         if (this.config.filterThinkingContent) {
             text = this.filterThinkingContent(text);
         }
@@ -70,23 +70,23 @@ export abstract class BaseClient {
     }
 
     /**
-     * Filter thinking content from response
+     * 从响应中过滤思考内容
      */
     protected filterThinkingContent(text: string): string {
-        // Remove <thinking>...</thinking> tags and content
+        // 移除<thinking>...</thinking>标签及其内容
         text = text.replace(/<thinking>[\s\S]*?<\/thinking>/gi, '');
 
-        // Remove "> Reasoning" blocks ending with "Reasoned for xx seconds"
+        // 移除"> Reasoning"块，以"Reasoned for xx seconds"结尾
         text = text.replace(/> Reasoning[\s\S]*?Reasoned for\s*\d+\s*seconds/gi, '');
 
-        // Remove excessive newlines
+        // 移除多余的空行
         text = text.replace(/\n{3,}/g, '\n\n');
 
         return text.trim();
     }
 
     /**
-     * Create cache key
+     * 创建缓存键
      */
     protected createCacheKey(prompt: string): string {
         let hash = 0;
@@ -99,17 +99,17 @@ export abstract class BaseClient {
     }
 
     /**
-     * Get client type (for cache key)
+     * 获取客户端类型（用于缓存键）
      */
     protected abstract getClientType(): string;
 
     /**
-     * Check if streaming is supported
+     * 检查是否支持流式传输
      */
     abstract supportsStreaming(): boolean;
 
     /**
-     * Stream translation (optional implementation)
+     * 流式翻译（可选实现）
      */
     async *translateStream(prompt: string): AsyncGenerator<string, void, unknown> {
         throw new TranslationError(

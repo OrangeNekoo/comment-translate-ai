@@ -23,81 +23,81 @@ export class TranslationService {
         this.config = config;
         this.cacheService = new CacheService({
             maxSize: 1000,
-            ttl: 30 * 60 * 1000 // 30 minutes
+            ttl: 30 * 60 * 1000 // 30分钟
         });
         this.promptBuilder = new PromptBuilder();
         this.updateClient();
     }
 
     /**
-     * Update configuration
+     * 更新配置
      */
     updateConfig(config: AiTranslateConfig): void {
         const oldModelType = this.config.modelType;
         this.config = config;
         
-        // Recreate client if model type changed
+        // 如果模型类型改变，重新创建客户端
         if (oldModelType !== config.modelType) {
             this.updateClient();
         } else {
-            // Update existing client config
+            // 更新现有客户端配置
             this.updateClient();
         }
     }
 
     /**
-     * Translate content
+     * 翻译内容
      */
     async translate(content: string, options: TranslationOptions = {}): Promise<string> {
         const { to = 'auto', suppressError = false } = options;
         const targetLang = to === 'auto' ? 'zh-CN' : to;
 
-        // Check cache
+        // 检查缓存
         const cacheKey = CacheService.generateKey(content, targetLang, this.config.modelType);
         const cached = this.cacheService.get(cacheKey);
         if (cached) {
             return cached;
         }
 
-        // Check for pending request (deduplication)
+        // 检查待处理的请求（去重）
         const pendingKey = `${content}:${targetLang}:${this.config.modelType}`;
         if (this.pendingRequests.has(pendingKey)) {
             return this.pendingRequests.get(pendingKey)!;
         }
 
-        // Create translation promise
+        // 创建翻译Promise
         const translationPromise = this.doTranslate(content, targetLang, suppressError);
         this.pendingRequests.set(pendingKey, translationPromise);
 
         try {
             const result = await translationPromise;
             
-            // Cache the result
+            // 缓存结果
             this.cacheService.set(cacheKey, result);
             
             return result;
         } finally {
-            // Clean up pending request
+            // 清理待处理请求
             this.pendingRequests.delete(pendingKey);
         }
     }
 
     /**
-     * Perform actual translation
+     * 执行实际翻译
      */
     private async doTranslate(content: string, targetLang: string, suppressError: boolean): Promise<string> {
         try {
-            // Build prompt
+            // 构建提示词
             const prompt = this.promptBuilder.buildTranslatePrompt(
                 content,
                 targetLang,
                 this.config.customTranslatePrompt
             );
 
-            // Get client
+            // 获取客户端
             const client = this.getClient();
 
-            // Execute translation
+            // 执行翻译
             const result = await client.translate(prompt);
 
             return result;
@@ -110,23 +110,26 @@ export class TranslationService {
     }
 
     /**
-     * Detect language
+     * 检测语言
      */
     async detectLanguage(text: string): Promise<string> {
         try {
             const prompt = this.promptBuilder.buildLanguageDetectionPrompt(text);
-            const client = this.getClient();
             
-            // Use lower temperature for consistent language detection
-            const originalTemp = this.config.temperature;
-            this.config.temperature = 0;
+            // 为语言检测创建专门的客户端，使用温度0以获得一致的结果
+            const detectionClient = new OpenAIClient({
+                apiKey: this.config.apiKey,
+                modelName: this.config.modelName,
+                apiEndpoint: this.config.apiEndpoint,
+                temperature: 0, // 使用较低的温度以获得一致的语言检测结果
+                maxTokens: this.config.maxTokens,
+                streaming: false,
+                filterThinkingContent: this.config.filterThinkingContent
+            });
             
-            const result = await client.translate(prompt);
-            
-            // Restore temperature
-            this.config.temperature = originalTemp;
+            const result = await detectionClient.translate(prompt);
 
-            // Extract BCP 47 code from result
+            // 从结果中提取BCP 47代码
             const bcp47Match = result.match(/[a-zA-Z]{2,3}(-[a-zA-Z0-9]+)*/);
             if (bcp47Match) {
                 return bcp47Match[0];
@@ -134,13 +137,13 @@ export class TranslationService {
 
             return result.trim().replace(/["'.]/g, '');
         } catch (error) {
-            console.error('Language detection failed:', error);
+            console.error('语言检测失败：', error);
             return 'unknown';
         }
     }
 
     /**
-     * Get or create API client
+     * 获取或创建API客户端
      */
     private getClient(): BaseClient {
         if (!this.client) {
@@ -155,7 +158,7 @@ export class TranslationService {
     }
 
     /**
-     * Update/create API client based on config
+     * 根据配置更新/创建API客户端
      */
     private updateClient(): void {
         const clientConfig = {
@@ -168,12 +171,12 @@ export class TranslationService {
             filterThinkingContent: this.config.filterThinkingContent
         };
 
-        // Only OpenAI is supported
+        // 仅支持OpenAI
         this.client = new OpenAIClient(clientConfig);
     }
 
     /**
-     * Handle error
+     * 处理错误
      */
     private handleError(error: unknown): void {
         if (error instanceof TranslationError) {
@@ -186,14 +189,14 @@ export class TranslationService {
     }
 
     /**
-     * Get cache statistics
+     * 获取缓存统计信息
      */
     getCacheStats(): { size: number; hits: number; misses: number; hitRate: number } {
         return this.cacheService.getStats();
     }
 
     /**
-     * Clear cache
+     * 清除缓存
      */
     clearCache(): void {
         this.cacheService.clear();
