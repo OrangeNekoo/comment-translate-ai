@@ -57,7 +57,7 @@ export class ConfigManager implements Disposable {
             errors.push('API Key 未配置');
         }
 
-        if (!['OpenAI', 'Gemini'].includes(config.modelType)) {
+        if (config.modelType !== 'OpenAI') {
             errors.push(`不支持的模型类型: ${config.modelType}`);
         }
 
@@ -94,29 +94,15 @@ export class ConfigManager implements Disposable {
     /**
      * Get default model name for model type
      */
-    getDefaultModelName(modelType: ModelType): string {
-        switch (modelType) {
-            case 'OpenAI':
-                return 'gpt-3.5-turbo';
-            case 'Gemini':
-                return 'gemini-2.0-flash';
-            default:
-                return 'gpt-3.5-turbo';
-        }
+    getDefaultModelName(_modelType: ModelType): string {
+        return 'gpt-3.5-turbo';
     }
 
     /**
      * Get default API endpoint for model type
      */
-    getDefaultApiEndpoint(modelType: ModelType): string {
-        switch (modelType) {
-            case 'OpenAI':
-                return 'https://api.openai.com/v1';
-            case 'Gemini':
-                return '';
-            default:
-                return 'https://api.openai.com/v1';
-        }
+    getDefaultApiEndpoint(_modelType: ModelType): string {
+        return 'https://api.openai.com/v1';
     }
 
     /**

@@ -4,7 +4,7 @@ import { ITranslateOptions } from 'comment-translate-manager';
 export { ITranslateOptions };
 
 // 模型类型
-export type ModelType = 'OpenAI' | 'Gemini';
+export type ModelType = 'OpenAI';
 
 // 命名规则类型
 export type NamingRuleType = 'default' | 'Camel Case' | 'Kernighan and Ritchie' | 'Snake Case' | 'Hungarian Notation';

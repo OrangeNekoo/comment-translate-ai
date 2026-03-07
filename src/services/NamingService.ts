@@ -3,7 +3,6 @@ import { window, TextEditor, TextDocument } from 'vscode';
 import { AiTranslateConfig } from '../types';
 import { PromptBuilder } from '../core/PromptBuilder';
 import { OpenAIClient } from '../api/OpenAIClient';
-import { GeminiClient } from '../api/GeminiClient';
 import { BaseClient } from '../api/BaseClient';
 import { TranslationError, ErrorCode } from '../errors/TranslationError';
 
@@ -158,20 +157,8 @@ export class NamingService {
             filterThinkingContent: this.config.filterThinkingContent
         };
 
-        switch (this.config.modelType) {
-            case 'OpenAI':
-                this.client = new OpenAIClient(clientConfig);
-                break;
-            case 'Gemini':
-                this.client = new GeminiClient(clientConfig);
-                break;
-            default:
-                throw new TranslationError(
-                    ErrorCode.CONFIG_INVALID_MODEL,
-                    undefined,
-                    `不支持的模型类型: ${this.config.modelType}`
-                );
-        }
+        // Only OpenAI is supported
+        this.client = new OpenAIClient(clientConfig);
     }
 
     /**
