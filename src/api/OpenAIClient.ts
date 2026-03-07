@@ -59,7 +59,9 @@ export class OpenAIClient extends BaseClient {
                 } : undefined
             };
         } catch (error) {
-            if (error instanceof TranslationError) { throw error; }
+            if (error instanceof TranslationError) {
+                throw error;
+            }
             throw TranslationError.fromAxiosError(error);
         }
     }
@@ -93,7 +95,9 @@ export class OpenAIClient extends BaseClient {
                 buffer = lines.pop() || '';
                 for (const line of lines) {
                     const trimmed = line.trim();
-                    if (!trimmed || trimmed === 'data: [DONE]') continue;
+                    if (!trimmed || trimmed === 'data: [DONE]') {
+                        continue;
+                    }
                     if (trimmed.startsWith('data: ')) {
                         try {
                             const json: OpenAIResponse = JSON.parse(trimmed.slice(6));
@@ -105,7 +109,9 @@ export class OpenAIClient extends BaseClient {
                 }
             }
         } catch (error) {
-            if (error instanceof TranslationError) { throw error; }
+            if (error instanceof TranslationError) {
+                throw error;
+            }
             throw TranslationError.fromAxiosError(error);
         }
     }

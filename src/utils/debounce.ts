@@ -17,7 +17,7 @@ export function debounce<T extends (...args: any[]) => any>(
     options: DebounceOptions = {}
 ): DebouncedFunction<T> {
     const { leading = false, trailing = true, maxWait } = options;
-    
+
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
     let maxTimeoutId: ReturnType<typeof setTimeout> | undefined;
     let lastArgs: Parameters<T> | undefined;
@@ -39,10 +39,10 @@ export function debounce<T extends (...args: any[]) => any>(
     const invokeFunc = (): ReturnType<T> => {
         const args = lastArgs!;
         const thisArg = lastThis;
-        
+
         lastArgs = undefined;
         lastThis = undefined;
-        
+
         result = func.apply(thisArg, args);
         return result;
     };
@@ -85,10 +85,10 @@ export function debounce<T extends (...args: any[]) => any>(
         return result;
     };
 
-    const debounced = function(this: any, ...args: Parameters<T>): ReturnType<T> {
+    const debounced = function (this: any, ...args: Parameters<T>): ReturnType<T> {
         const time = Date.now();
         const isInvoking = shouldInvoke(time);
-        
+
         lastArgs = args;
         lastThis = this;
         lastCallTime = time;
@@ -101,11 +101,11 @@ export function debounce<T extends (...args: any[]) => any>(
                 maxTimeoutId = setTimeout(invokeFunc, maxWait);
             }
         }
-        
+
         if (!timeoutId) {
             timeoutId = setTimeout(timerExpired, wait);
         }
-        
+
         return result;
     };
 
