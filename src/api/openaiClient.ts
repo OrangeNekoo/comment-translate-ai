@@ -1,98 +1,186 @@
-import axios from 'axios';
-import { window } from 'vscode';
+// src/api/OpenAIClient.ts
+import axios, { AxiosResponse } from 'axios';
+import { BaseClient } from './BaseClient';
+import { TranslationResult, ClientConfig, RetryConfig } from '../types';
+import { TranslationError, ErrorCode } from '../errors/TranslationError';
+import { normalizeApiUrl } from '../utils/url';
 
-// 定义 OpenAI 选项的结构
-export interface OpenAIOptions {
-    apiKey: string;
-    apiEndpoint: string;
-    model: string;
-    temperature?: number;
-    maxTokens?: number;
-    streaming?: boolean;
+interface OpenAIResponse {
+    choices: Array<{
+        message?: {
+            content: string;
+        };
+        delta?: {
+            content?: string;
+        };
+        finish_reason: string | null;
+    }>;
+    usage?: {
+        prompt_tokens: number;
+        completion_tokens: number;
+        total_tokens: number;
+    };
 }
 
-// 向 OpenAI 兼容的 API 发出请求的函数
-export async function requestOpenAI(prompt: string, options: OpenAIOptions): Promise<string> {
-    if (!options.apiKey) {
-        throw new Error('请配置 API Key');
+export class OpenAIClient extends BaseClient {
+    private apiUrl: string;
+
+    constructor(config: ClientConfig, retryConfig?: Partial<RetryConfig>) {
+        super(config, retryConfig);
+        this.apiUrl = normalizeApiUrl(config.apiEndpoint || 'https://api.openai.com/v1');
     }
 
-    let url = options.apiEndpoint;
-    const endpoint = '/chat/completions';
+    /**
+     * Execute translation request
+     */
+    protected async doTranslate(prompt: string): Promise<TranslationResult> {
+        const url = this.apiUrl;
+        
+        const data = {
+            model: this.config.modelName,
+            messages: [{
+                role: 'user',
+                content: prompt
+            }],
+            temperature: this.config.temperature ?? 0.5,
+            max_tokens: this.config.maxTokens,
+            stream: false
+        };
 
-    if (!url.endsWith(endpoint)) {
-        url = `${url.replace(/\/+$/, '')}${endpoint}`;
+        const headers = {
+            'Authorization': `Bearer ${this.config.apiKey}`,
+            'Content-Type': 'application/json'
+        };
+
+        try {
+            const response: AxiosResponse<OpenAIResponse> = await axios.post(url, data, {
+                headers,
+                timeout: 50000
+            });
+
+            if (!response.data?.choices?.[0]?.message?.content) {
+                throw new TranslationError(
+                    ErrorCode.API_INVALID_RESPONSE,
+                    undefined,
+                    'API响应格式不符合标准'
+                );
+            }
+
+            return {
+                text: response.data.choices[0].message.content,
+                usage: response.data.usage ? {
+                    promptTokens: response.data.usage.prompt_tokens,
+                    completionTokens: response.data.usage.completion_tokens,
+                    totalTokens: response.data.usage.total_tokens
+                } : undefined
+            };
+        } catch (error) {
+            if (error instanceof TranslationError) {
+                throw error;
+            }
+            throw TranslationError.fromAxiosError(error);
+        }
     }
 
-    // 规范化 URL
-    url = url.replace(/^http:\/(?!\/)/, 'http://').replace(/^https:\/(?!\/)/, 'https://');
-    const parts = url.split('://');
-    if (parts.length === 2) {
-        const protocol = parts[0];
-        const rest = parts[1].replace(/\/\/+/g, '/');
-        url = `${protocol}://${rest}`;
-    }
+    /**
+     * Stream translation
+     */
+    async *translateStream(prompt: string): AsyncGenerator<string, void, unknown> {
+        if (!this.supportsStreaming()) {
+            throw new TranslationError(
+                ErrorCode.UNKNOWN_ERROR,
+                undefined,
+                '流式传输未启用'
+            );
+        }
 
-    const data = {
-        model: options.model,
-        messages: [{
-            role: "user",
-            content: prompt
-        }],
-        temperature: options.temperature || 0.5,
-        max_tokens: options.maxTokens,
-        stream: options.streaming
-    };
+        this.validateConfig();
 
-    const headers = {
-        'Authorization': `Bearer ${options.apiKey}`,
-        'Content-Type': 'application/json'
-    };
+        const url = this.apiUrl;
+        
+        const data = {
+            model: this.config.modelName,
+            messages: [{
+                role: 'user',
+                content: prompt
+            }],
+            temperature: this.config.temperature ?? 0.5,
+            max_tokens: this.config.maxTokens,
+            stream: true
+        };
 
-    try {
-        if (options.streaming) {
+        const headers = {
+            'Authorization': `Bearer ${this.config.apiKey}`,
+            'Content-Type': 'application/json'
+        };
+
+        try {
             const response = await axios.post(url, data, {
                 headers,
                 responseType: 'stream',
                 timeout: 50000
             });
 
-            let result = '';
-            return new Promise<string>((resolve, reject) => {
-                response.data.on('data', (chunk: Buffer) => {
-                    const lines = chunk.toString().split('\n').filter(line => line.trim() !== '');
-                    for (const line of lines) {
-                        if (line.includes('[DONE]')) continue;
+            let buffer = '';
+            
+            for await (const chunk of response.data) {
+                const chunkStr = chunk.toString();
+                buffer += chunkStr;
+                
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || ''; // Keep incomplete line in buffer
+                
+                for (const line of lines) {
+                    const trimmed = line.trim();
+                    if (!trimmed || trimmed === 'data: [DONE]') {
+                        continue;
+                    }
+                    
+                    if (trimmed.startsWith('data: ')) {
                         try {
-                            const jsonStr = line.replace(/^data: /, '').trim();
-                            if (jsonStr) {
-                                const json = JSON.parse(jsonStr);
-                                if (json.choices[0].delta?.content) {
-                                    result += json.choices[0].delta.content;
-                                }
+                            const jsonStr = trimmed.slice(6);
+                            const json: OpenAIResponse = JSON.parse(jsonStr);
+                            
+                            if (json.choices?.[0]?.delta?.content) {
+                                yield json.choices[0].delta.content;
                             }
                         } catch (e) {
-                            console.error('解析流式数据错误:', e);
+                            // Ignore parse errors for incomplete chunks
+                            console.debug('Stream parse error:', e);
                         }
                     }
-                });
-                response.data.on('end', () => resolve(result.trim()));
-                response.data.on('error', (err: Error) => reject(err));
-            });
-        } else {
-            const res = await axios.post(url, data, {
-                headers,
-                timeout: 50000
-            });
-
-            if (!res.data?.choices?.[0]?.message?.content) {
-                throw new Error('API响应格式不符合标准');
+                }
             }
-            return res.data.choices[0].message.content.trim();
+        } catch (error) {
+            if (error instanceof TranslationError) {
+                throw error;
+            }
+            throw TranslationError.fromAxiosError(error);
         }
-    } catch (error: any) {
-        // 在这里不显示错误消息，让调用者决定如何处理
-        // window.showErrorMessage(`请求失败: ${error.message}`);
-        throw error;
+    }
+
+    /**
+     * Validate OpenAI configuration
+     */
+    protected validateConfig(): void {
+        super.validateConfig();
+
+        if (!this.apiUrl) {
+            throw new TranslationError(ErrorCode.CONFIG_INVALID_ENDPOINT);
+        }
+    }
+
+    /**
+     * Get client type
+     */
+    protected getClientType(): string {
+        return 'openai';
+    }
+
+    /**
+     * Check if streaming is supported
+     */
+    supportsStreaming(): boolean {
+        return this.config.streaming === true;
     }
 }
