@@ -3,7 +3,7 @@
   "displayName": "Comment Translate for AI",
   "description": "Translation source extension for Comment Translate. Supports OpenAI-compatible APIs including DeepSeek, OpenRouter, and more.",
   "version": "2.0.0",
-  "publisher": "Cheng-MaoMao",
+  "publisher": "OrangeNekoo",
   "engines": {
     "vscode": "^1.92.0"
   },
@@ -21,13 +21,13 @@
     "注释",
     "翻訳"
   ],
-  "homepage": "https://github.com/Cheng-MaoMao/comment-translate-ai#readme",
+  "homepage": "https://github.com/OrangeNekoo/comment-translate-ai#readme",
   "bugs": {
-    "url": "https://github.com/Cheng-MaoMao/comment-translate-ai/issues"
+    "url": "https://github.com/OrangeNekoo/comment-translate-ai/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Cheng-MaoMao/comment-translate-ai.git"
+    "url": "https://github.com/OrangeNekoo/comment-translate-ai.git"
   },
   "activationEvents": [],
   "main": "./out/extension.js",
