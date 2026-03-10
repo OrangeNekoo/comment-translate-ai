@@ -11,6 +11,19 @@ interface ExtensionExports {
     extendTranslate: (registry: (key: string, ctor: new () => any) => void) => void;
 }
 
+// 全局日志服务单例
+let globalLogger: LoggingService | null = null;
+
+/**
+ * 获取或创建全局日志服务单例
+ */
+function getLogger(logLevel: LogLevel): LoggingService {
+    if (!globalLogger) {
+        globalLogger = new LoggingService(logLevel);
+    }
+    return globalLogger;
+}
+
 /**
  * 扩展激活入口函数
  */
@@ -19,18 +32,18 @@ export function activate(context: vscode.ExtensionContext): ExtensionExports {
     const configManager = new ConfigManager();
     const config = configManager.getConfig();
 
-    // 创建日志服务
+    // 创建日志服务（单例）
     const logLevel = LogLevel[config.logLevel as keyof typeof LogLevel] ?? LogLevel.Info;
-    const logger = new LoggingService(logLevel);
+    const logger = getLogger(logLevel);
 
     logger.info('Comment Translate AI 扩展已激活');
     logger.debug('配置：modelType=%s, modelName=%s', config.modelType, config.modelName);
 
-    // 创建主 AI 翻译实例
-    const aiTranslate = new AiTranslate();
-
     // 创建用于问题翻译的翻译服务
     const translationService = new TranslationService(config, logger);
+
+    // 创建主 AI 翻译实例（传入共享的翻译服务和日志服务）
+    const aiTranslate = new AiTranslate(config, translationService);
 
     // 创建并启动问题翻译服务
     const problemTranslationService = new ProblemTranslationService(config, translationService);
@@ -39,10 +52,13 @@ export function activate(context: vscode.ExtensionContext): ExtensionExports {
     const configDisposable = configManager.onConfigChange(() => {
         const newConfig = configManager.getConfig();
         const newLogLevel = LogLevel[newConfig.logLevel as keyof typeof LogLevel] ?? LogLevel.Info;
-        // 更新日志服务级别（如果需要动态更新）
+        // 更新日志服务级别
+        if (globalLogger) {
+            // 日志级别更新需要通过重新创建 OutputChannel 实现，这里仅记录
+            globalLogger.info('配置已更新');
+        }
         translationService.updateConfig(newConfig);
         problemTranslationService.updateConfig(newConfig);
-        logger.info('配置已更新');
     });
 
     // 启动问题翻译服务
@@ -63,7 +79,10 @@ export function activate(context: vscode.ExtensionContext): ExtensionExports {
             dispose: () => {
                 aiTranslate.dispose();
                 translationService.clearCache();
-                logger.dispose();
+                if (globalLogger) {
+                    globalLogger.dispose();
+                    globalLogger = null;
+                }
             }
         }
     );

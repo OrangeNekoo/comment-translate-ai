@@ -16,17 +16,20 @@ export class AiTranslate implements ITranslate {
     private translationService: TranslationService;
     private namingService: NamingService;
 
-    constructor() {
-        // 初始化配置管理器
-        this.configManager = new ConfigManager();
-        
-        // 获取初始配置
-        const config = this.configManager.getConfig();
-        
-        // 初始化服务
-        this.translationService = new TranslationService(config);
-        this.namingService = new NamingService(config);
-        
+    constructor(config?: AiTranslateConfig, translationService?: TranslationService) {
+        // 如果外部传入配置和服务，则使用传入的（用于 extension.ts）
+        if (config && translationService) {
+            this.configManager = new ConfigManager();
+            this.translationService = translationService;
+            this.namingService = new NamingService(config);
+        } else {
+            // 否则自行创建（用于测试或其他场景）
+            this.configManager = new ConfigManager();
+            const initialConfig = this.configManager.getConfig();
+            this.translationService = new TranslationService(initialConfig);
+            this.namingService = new NamingService(initialConfig);
+        }
+
         // 监听配置变化
         this.configManager.onConfigChange(() => {
             const newConfig = this.configManager.getConfig();
