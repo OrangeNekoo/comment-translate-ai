@@ -24,6 +24,7 @@ export class ProblemTranslationService implements Disposable {
     private translationService: TranslationService;
     private diagnosticCollection: DiagnosticCollection;
     private messageCache: Map<string, ProblemTranslationEntry> = new Map();
+    private translatedUris: Set<string> = new Set();
     private disposables: Disposable[] = [];
     private debouncedTranslate: ReturnType<typeof debounce>;
 
@@ -74,17 +75,22 @@ export class ProblemTranslationService implements Disposable {
      */
     private async performTranslation(): Promise<void> {
         const lang = this.config.problemTranslateLang;
-        
+
         // 如果翻译被禁用，清空集合
         if (!lang || lang === 'none') {
             this.diagnosticCollection.clear();
+            this.translatedUris.clear();
             return;
         }
 
         const allDiagnostics = languages.getDiagnostics();
         const diagnosticsToUpdate = new Map<string, Diagnostic[]>();
+        const currentUriSet = new Set<string>(); // 当前存在的 URI 集合
 
         for (const [uri, diagnostics] of allDiagnostics) {
+            const uriStr = uri.toString();
+            currentUriSet.add(uriStr);
+
             // 过滤掉来自我们自己集合的诊断信息，避免循环处理
             const originalDiagnostics = diagnostics.filter(d => d.source !== 'ai-translator');
 
@@ -98,15 +104,27 @@ export class ProblemTranslationService implements Disposable {
                 translatedDiagnostics.push(translatedDiag);
             }
 
-            diagnosticsToUpdate.set(uri.toString(), translatedDiagnostics);
+            diagnosticsToUpdate.set(uriStr, translatedDiagnostics);
         }
 
         // 更新诊断信息：先清空所有，然后重新设置
         this.diagnosticCollection.clear();
-        
+
         for (const [uriStr, diags] of Array.from(diagnosticsToUpdate)) {
-            this.diagnosticCollection.set(Uri.parse(uriStr), diags);
+            const uri = Uri.parse(uriStr);
+            this.diagnosticCollection.set(uri, diags);
         }
+
+        // 清理不再有原始诊断的 URI 的翻译
+        for (const uriStr of this.translatedUris) {
+            if (!currentUriSet.has(uriStr)) {
+                const uri = Uri.parse(uriStr);
+                this.diagnosticCollection.delete(uri);
+            }
+        }
+
+        // 更新已翻译 URI 集合
+        this.translatedUris = currentUriSet;
     }
 
     /**
@@ -223,6 +241,7 @@ export class ProblemTranslationService implements Disposable {
     clear(): void {
         this.diagnosticCollection.clear();
         this.messageCache.clear();
+        this.translatedUris.clear();
     }
 
     /**
