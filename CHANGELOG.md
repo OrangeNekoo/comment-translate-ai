@@ -10,6 +10,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Changed
 
+- 🔧 修复problemTranslateLang功能会重复翻译问题
+
+## [2.0.1] - 2026-03-10
+
 - 🏗️ **架构重构**：采用分层架构，提升代码质量和可维护性
 - 🗑️ 移除 Gemini 支持
 - 🌍 完善设置界面多语言支持（简体中文、英语）
