@@ -137,6 +137,10 @@ Issues and Pull Requests are welcome!
 
 ## 📝 Changelog
 
+### 2.0.1
+
+- 🔧 Fixing the problemTranslateLang function will cause repeated translation issues
+
 ### 2.0.0 (Refactored Version)
 
 - 🏗️ **Architecture Refactor**: Adopted layered architecture, improved code quality and maintainability

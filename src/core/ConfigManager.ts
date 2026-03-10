@@ -1,6 +1,6 @@
 // src/core/ConfigManager.ts
 import { workspace, Disposable, ConfigurationChangeEvent } from 'vscode';
-import { AiTranslateConfig, ValidationResult, ModelType, NamingRuleType } from '../types';
+import { AiTranslateConfig, ValidationResult, ModelType, NamingRuleType, LogLevelType } from '../types';
 import { isValidHttpUrl } from '../utils/url';
 
 export const CONFIG_PREFIX = 'aiTranslate';
@@ -124,7 +124,8 @@ export class ConfigManager implements Disposable {
             filterThinkingContent: configuration.get<boolean>('filterThinkingContent', false),
             problemTranslateLang: configuration.get<string>('problemTranslateLang', 'none'),
             customTranslatePrompt: configuration.get<string>('customTranslatePrompt', ''),
-            customNamingPrompt: configuration.get<string>('customNamingPrompt', '')
+            customNamingPrompt: configuration.get<string>('customNamingPrompt', ''),
+            logLevel: configuration.get<LogLevelType>('logLevel', 'info')
         };
     }
 

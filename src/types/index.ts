@@ -26,11 +26,15 @@ export interface NamingConfig {
     customNamingPrompt?: string;
 }
 
+// 日志级别类型
+export type LogLevelType = 'error' | 'warn' | 'info' | 'debug';
+
 // 完整配置
 export interface AiTranslateConfig extends TranslationConfig, NamingConfig {
     filterThinkingContent: boolean;
     problemTranslateLang: string;
     customTranslatePrompt?: string;
+    logLevel?: LogLevelType;
 }
 
 // 缓存条目

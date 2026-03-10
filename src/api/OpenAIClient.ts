@@ -4,8 +4,9 @@ import { BaseClient } from './BaseClient';
 import { TranslationResult, ClientConfig, RetryConfig } from '../types';
 import { TranslationError, ErrorCode } from '../errors/TranslationError';
 import { normalizeApiUrl } from '../utils/url';
+import { LoggingService } from '../services/LoggingService';
 
-// OpenAI响应接口
+// OpenAI 响应接口
 interface OpenAIResponse {
     choices: Array<{
         message?: { content: string; };
@@ -21,10 +22,12 @@ interface OpenAIResponse {
 
 export class OpenAIClient extends BaseClient {
     private apiUrl: string;
+    private logger: LoggingService;
 
-    constructor(config: ClientConfig, retryConfig?: Partial<RetryConfig>) {
+    constructor(config: ClientConfig, retryConfig?: Partial<RetryConfig>, logger?: LoggingService) {
         super(config, retryConfig);
         this.apiUrl = normalizeApiUrl(config.apiEndpoint || 'https://api.openai.com/v1');
+        this.logger = logger ?? new LoggingService();
     }
 
     protected async doTranslate(prompt: string): Promise<TranslationResult> {
@@ -41,14 +44,28 @@ export class OpenAIClient extends BaseClient {
             'Content-Type': 'application/json'
         };
 
+        this.logger.debug('翻译请求：内容长度=%d', prompt.length);
+        this.logger.debug('API 请求：POST %s', url);
+        this.logger.debug('请求参数：model=%s, temperature=%d, maxTokens=%d',
+            this.config.modelName, this.config.temperature ?? 0.5, this.config.maxTokens);
+
+        const startTime = Date.now();
+
         try {
             const response: AxiosResponse<OpenAIResponse> = await axios.post(url, data, {
                 headers, timeout: 50000
             });
 
             if (!response.data?.choices?.[0]?.message?.content) {
-                throw new TranslationError(ErrorCode.API_INVALID_RESPONSE, undefined, 'API响应格式不符合标准');
+                throw new TranslationError(ErrorCode.API_INVALID_RESPONSE, undefined, 'API 响应格式不符合标准');
             }
+
+            const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+            const usage = response.data.usage;
+
+            this.logger.info('API 响应：tokens=%d, 耗时=%ss',
+                usage?.total_tokens || 0, duration);
+            this.logger.debug('响应内容：%s', response.data.choices[0].message.content.substring(0, 200));
 
             return {
                 text: response.data.choices[0].message.content,
@@ -59,6 +76,8 @@ export class OpenAIClient extends BaseClient {
                 } : undefined
             };
         } catch (error) {
+            this.logger.error('请求失败：%s', error instanceof Error ? error.message : '未知错误');
+
             if (error instanceof TranslationError) {
                 throw error;
             }
@@ -83,6 +102,8 @@ export class OpenAIClient extends BaseClient {
             'Authorization': `Bearer ${this.config.apiKey}`,
             'Content-Type': 'application/json'
         };
+
+        this.logger.debug('流式翻译请求：内容长度=%d', prompt.length);
 
         try {
             const response = await axios.post(url, data, {
@@ -109,6 +130,7 @@ export class OpenAIClient extends BaseClient {
                 }
             }
         } catch (error) {
+            this.logger.error('流式请求失败：%s', error instanceof Error ? error.message : '未知错误');
             if (error instanceof TranslationError) {
                 throw error;
             }
