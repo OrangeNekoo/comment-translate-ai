@@ -42,8 +42,29 @@ export class LoggingService implements Disposable {
 
     private log(level: string, message: string, args: unknown[]): void {
         const timestamp = new Date().toISOString();
-        const argsStr = args.length > 0 ? args.map(a => JSON.stringify(a)).join(' ') : '';
-        const fullMessage = `[${timestamp}] [${level}] ${message} ${argsStr}`.trim();
+        // 替换占位符 %d, %s, %o 等
+        let formattedMessage = message;
+        if (args.length > 0) {
+            let argIndex = 0;
+            formattedMessage = message.replace(/%[dssoj]/g, (match) => {
+                if (argIndex >= args.length) {
+                    return match;
+                }
+                const arg = args[argIndex++];
+                switch (match) {
+                    case '%d':
+                        return String(typeof arg === 'number' ? arg : JSON.stringify(arg));
+                    case '%s':
+                        return String(arg);
+                    case '%o':
+                    case '%j':
+                        return JSON.stringify(arg);
+                    default:
+                        return String(arg);
+                }
+            });
+        }
+        const fullMessage = `[${timestamp}] [${level}] ${formattedMessage}`.trim();
         this.outputChannel.appendLine(fullMessage);
     }
 
