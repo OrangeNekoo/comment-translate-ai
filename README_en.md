@@ -1,5 +1,7 @@
 # Comment Translate AI
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/OrangeNekoo/comment-translate-ai)
+
 A VSCode code comment translation plugin that supports large language model integration, serving as a translation source extension for [Comment Translate](https://marketplace.visualstudio.com/items?itemName=intellsmi.comment-translate). Compatible with all OpenAI API format services, including OpenAI, DeepSeek, OpenRouter, and more.
 
 ⚠️*This plugin does not provide an API key. Please prepare your own key.*
