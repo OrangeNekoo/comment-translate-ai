@@ -152,6 +152,7 @@ export class NamingService {
             apiKey: this.config.apiKey,
             modelName: this.config.modelName,
             apiEndpoint: this.config.apiEndpoint,
+            apiFormat: this.config.apiFormat,
             temperature: this.config.temperature,
             maxTokens: this.config.maxTokens,
             streaming: false, // 命名不需要流式传输
