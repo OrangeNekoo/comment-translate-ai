@@ -139,6 +139,10 @@ Issues and Pull Requests are welcome!
 
 ## 📝 Changelog
 
+### 2.0.2
+
+- 🔧 Fix [#3](https://github.com/OrangeNekoo/comment-translate-ai/issues/3) Add support for OpenAI Responses API
+
 ### 2.0.1
 
 - 🔧 Fixing the problemTranslateLang function will cause repeated translation issues

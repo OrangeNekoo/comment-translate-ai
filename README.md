@@ -137,6 +137,10 @@ src/
 
 ## 📝 更新日志
 
+### 2.0.2
+
+- 🔧 修复 [#3](https://github.com/OrangeNekoo/comment-translate-ai/issues/3) 添加对OpenAI Responses API 接口的支持
+
 ### 2.0.1
 
 - 🔧 修复problemTranslateLang功能会重复翻译问题

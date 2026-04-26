@@ -10,6 +10,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Changed
 
+- 🔧 修复 [#3](https://github.com/OrangeNekoo/comment-translate-ai/issues/3) 添加对OpenAI Responses API 接口的支持
+
+## [2.0.2] - 2026-04-26
+
+### Changed
+
 - 🔧 修复problemTranslateLang功能会重复翻译问题
 
 ## [2.0.1] - 2026-03-10
