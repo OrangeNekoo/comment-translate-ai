@@ -297,6 +297,7 @@
   },
   "dependencies": {
     "axios": "^1.x.x",
-    "comment-translate-manager": "latest"
+    "comment-translate-manager": "latest",
+    "vsce": "^2.15.0"
   }
 }
