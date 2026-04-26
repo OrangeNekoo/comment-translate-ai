@@ -2,7 +2,7 @@
   "name": "ai-powered-comment-translate-extension",
   "displayName": "Comment Translate for AI",
   "description": "Translation source extension for Comment Translate. Supports OpenAI-compatible APIs including DeepSeek, OpenRouter, and more.",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "publisher": "Cheng-MaoMao",
   "engines": {
     "vscode": "^1.92.0"
@@ -108,6 +108,19 @@
           "type": "boolean",
           "default": false,
           "markdownDescription": "%config.aiTranslate.streaming%"
+        },
+        "aiTranslate.apiFormat": {
+          "type": "string",
+          "enum": [
+            "chat-completions",
+            "responses"
+          ],
+          "enumDescriptions": [
+            "%config.apiFormat.chatCompletions%",
+            "%config.apiFormat.responses%"
+          ],
+          "default": "chat-completions",
+          "markdownDescription": "%config.apiFormat.desc%"
         },
         "aiTranslate.filterThinkingContent": {
           "type": "boolean",
@@ -284,6 +297,7 @@
   },
   "dependencies": {
     "axios": "^1.x.x",
-    "comment-translate-manager": "latest"
+    "comment-translate-manager": "latest",
+    "vsce": "^2.15.0"
   }
 }

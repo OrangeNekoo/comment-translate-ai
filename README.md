@@ -1,5 +1,7 @@
 # Comment Translate AI
 
+[![Ask DeepWiki](./image/badge.png)](https://deepwiki.com/OrangeNekoo/comment-translate-ai)
+
 支持大模型调用的 VSCode 代码注释翻译插件，作为 [Comment Translate](https://marketplace.visualstudio.com/items?itemName=intellsmi.comment-translate) 的翻译源扩展。兼容所有 OpenAI API 格式的服务，如 OpenAI、DeepSeek、OpenRouter 等。
 
 ⚠️*本插件不提供大模型 Key，请自备 Key*
@@ -134,6 +136,10 @@ src/
 欢迎提交 Issue 和 Pull Request！
 
 ## 📝 更新日志
+
+### 2.0.2
+
+- 🔧 修复 [#3](https://github.com/OrangeNekoo/comment-translate-ai/issues/3) 添加对OpenAI Responses API 接口的支持
 
 ### 2.0.1
 

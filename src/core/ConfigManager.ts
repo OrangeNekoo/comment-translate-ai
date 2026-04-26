@@ -1,6 +1,6 @@
 // src/core/ConfigManager.ts
 import { workspace, Disposable, ConfigurationChangeEvent } from 'vscode';
-import { AiTranslateConfig, ValidationResult, ModelType, NamingRuleType, LogLevelType } from '../types';
+import { AiTranslateConfig, ValidationResult, ModelType, NamingRuleType, LogLevelType, ApiFormat } from '../types';
 import { isValidHttpUrl } from '../utils/url';
 
 export const CONFIG_PREFIX = 'aiTranslate';
@@ -120,6 +120,7 @@ export class ConfigManager implements Disposable {
             temperature: configuration.get<number>('largeModelTemperature', 0.5),
             maxTokens: configuration.get<number>('largeModelMaxTokens', 4096),
             streaming: configuration.get<boolean>('streaming', false),
+            apiFormat: configuration.get<ApiFormat>('apiFormat', 'chat-completions'),
             namingRules: configuration.get<NamingRuleType>('namingRules', 'default'),
             filterThinkingContent: configuration.get<boolean>('filterThinkingContent', false),
             problemTranslateLang: configuration.get<string>('problemTranslateLang', 'none'),

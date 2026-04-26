@@ -139,7 +139,8 @@ export class TranslationService {
                 apiKey: this.config.apiKey,
                 modelName: this.config.modelName,
                 apiEndpoint: this.config.apiEndpoint,
-                temperature: 0, // 使用较低的温度以获得一致的语言检测结果
+                apiFormat: this.config.apiFormat,
+                temperature: 0,
                 maxTokens: this.config.maxTokens,
                 streaming: false,
                 filterThinkingContent: this.config.filterThinkingContent
@@ -186,6 +187,7 @@ export class TranslationService {
             apiKey: this.config.apiKey,
             modelName: this.config.modelName,
             apiEndpoint: this.config.apiEndpoint,
+            apiFormat: this.config.apiFormat,
             temperature: this.config.temperature,
             maxTokens: this.config.maxTokens,
             streaming: this.config.streaming,

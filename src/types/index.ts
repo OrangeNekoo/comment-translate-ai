@@ -9,11 +9,15 @@ export type ModelType = 'OpenAI';
 // 命名规则类型
 export type NamingRuleType = 'default' | 'Camel Case' | 'Kernighan and Ritchie' | 'Snake Case' | 'Hungarian Notation';
 
+// API 格式类型
+export type ApiFormat = 'chat-completions' | 'responses';
+
 // 翻译配置
 export interface TranslationConfig {
     modelType: ModelType;
     apiKey: string;
     apiEndpoint?: string;
+    apiFormat?: ApiFormat;
     modelName: string;
     temperature?: number;
     maxTokens?: number;
@@ -57,6 +61,7 @@ export interface ClientConfig {
     apiKey: string;
     modelName: string;
     apiEndpoint?: string;
+    apiFormat?: ApiFormat;
     temperature?: number;
     maxTokens?: number;
     streaming?: boolean;
