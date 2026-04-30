@@ -1,6 +1,6 @@
 // src/core/ConfigManager.ts
 import { workspace, Disposable, ConfigurationChangeEvent } from 'vscode';
-import { AiTranslateConfig, ValidationResult, ModelType, NamingRuleType, LogLevelType, ApiFormat } from '../types';
+import { AiTranslateConfig, ValidationResult, ModelType, NamingRuleType, LogLevelType, ApiFormat, ExtraRequestParams } from '../types';
 import { isValidHttpUrl } from '../utils/url';
 
 export const CONFIG_PREFIX = 'aiTranslate';
@@ -75,6 +75,10 @@ export class ConfigManager implements Disposable {
             if (config.maxTokens !== undefined && config.maxTokens < 1) {
                 errors.push('Max Tokens 必须大于 0');
             }
+
+            if (!this.isPlainObject(config.extraRequestParams)) {
+                errors.push('额外请求参数必须是 JSON 对象');
+            }
         }
 
         const validNamingRules: NamingRuleType[] = [
@@ -120,6 +124,7 @@ export class ConfigManager implements Disposable {
             temperature: configuration.get<number>('largeModelTemperature', 0.5),
             maxTokens: configuration.get<number>('largeModelMaxTokens', 4096),
             streaming: configuration.get<boolean>('streaming', false),
+            extraRequestParams: configuration.get<ExtraRequestParams>('extraRequestParams', {}),
             apiFormat: configuration.get<ApiFormat>('apiFormat', 'chat-completions'),
             namingRules: configuration.get<NamingRuleType>('namingRules', 'default'),
             filterThinkingContent: configuration.get<boolean>('filterThinkingContent', false),
@@ -128,6 +133,10 @@ export class ConfigManager implements Disposable {
             customNamingPrompt: configuration.get<string>('customNamingPrompt', ''),
             logLevel: configuration.get<LogLevelType>('logLevel', 'info')
         };
+    }
+
+    private isPlainObject(value: unknown): value is ExtraRequestParams {
+        return value === undefined || (typeof value === 'object' && value !== null && !Array.isArray(value));
     }
 
     /**

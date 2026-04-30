@@ -12,6 +12,9 @@ export type NamingRuleType = 'default' | 'Camel Case' | 'Kernighan and Ritchie' 
 // API 格式类型
 export type ApiFormat = 'chat-completions' | 'responses';
 
+// 兼容模型厂商扩展的请求参数
+export type ExtraRequestParams = Record<string, unknown>;
+
 // 翻译配置
 export interface TranslationConfig {
     modelType: ModelType;
@@ -22,6 +25,7 @@ export interface TranslationConfig {
     temperature?: number;
     maxTokens?: number;
     streaming?: boolean;
+    extraRequestParams?: ExtraRequestParams;
 }
 
 // 命名配置
@@ -66,6 +70,7 @@ export interface ClientConfig {
     maxTokens?: number;
     streaming?: boolean;
     filterThinkingContent?: boolean;
+    extraRequestParams?: ExtraRequestParams;
 }
 
 // 验证结果

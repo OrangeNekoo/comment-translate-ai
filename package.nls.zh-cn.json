@@ -16,6 +16,7 @@
     "config.aiTranslate.customTranslatePrompt": "自定义翻译提示词模板。必须包含 ${targetLang} 和 ${content} 占位符。",
     "config.aiTranslate.customNamingPrompt": "自定义命名提示词模板。必须包含 ${variableName}、${paragraph} 和 ${languageId} 占位符。",
     "config.aiTranslate.streaming": "启用流式响应以实时显示翻译结果",
+    "config.aiTranslate.extraRequestParams": "合并到每次模型请求里的额外 JSON 参数，用于 DashScope 等 OpenAI 兼容厂商。例如：{\"enable_thinking\": false, \"top_p\": 0.8}",
     "config.apiFormat.desc": "API 格式。使用 'chat-completions' 对应 /v1/chat/completions 端点，或 'responses' 对应 /v1/responses 端点。",
     "config.apiFormat.chatCompletions": "Chat Completions API：标准 /v1/chat/completions 端点",
     "config.apiFormat.responses": "Responses API：新版 /v1/responses 端点（GPT-5、o 系列等）",

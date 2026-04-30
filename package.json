@@ -109,6 +109,12 @@
           "default": false,
           "markdownDescription": "%config.aiTranslate.streaming%"
         },
+        "aiTranslate.extraRequestParams": {
+          "type": "object",
+          "default": {},
+          "additionalProperties": true,
+          "markdownDescription": "%config.aiTranslate.extraRequestParams%"
+        },
         "aiTranslate.apiFormat": {
           "type": "string",
           "enum": [

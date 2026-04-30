@@ -156,7 +156,8 @@ export class NamingService {
             temperature: this.config.temperature,
             maxTokens: this.config.maxTokens,
             streaming: false, // 命名不需要流式传输
-            filterThinkingContent: this.config.filterThinkingContent
+            filterThinkingContent: this.config.filterThinkingContent,
+            extraRequestParams: this.config.extraRequestParams
         };
 
         // 仅支持OpenAI

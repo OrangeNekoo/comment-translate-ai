@@ -16,6 +16,7 @@
     "config.aiTranslate.customTranslatePrompt": "Custom translation prompt template. Must include ${targetLang} and ${content} placeholders.",
     "config.aiTranslate.customNamingPrompt": "Custom naming prompt template. Must include ${variableName}, ${paragraph}, and ${languageId} placeholders.",
     "config.aiTranslate.streaming": "Enable streaming response for real-time translation display",
+    "config.aiTranslate.extraRequestParams": "Extra JSON parameters merged into each model request, for OpenAI-compatible vendors such as DashScope. Example: {\"enable_thinking\": false, \"top_p\": 0.8}",
     "config.apiFormat.desc": "API format. Use 'chat-completions' for /v1/chat/completions endpoint, or 'responses' for /v1/responses endpoint.",
     "config.apiFormat.chatCompletions": "Chat Completions API: Standard /v1/chat/completions endpoint",
     "config.apiFormat.responses": "Responses API: New /v1/responses endpoint (GPT-5, o-series, etc.)",
