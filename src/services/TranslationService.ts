@@ -143,7 +143,8 @@ export class TranslationService {
                 temperature: 0,
                 maxTokens: this.config.maxTokens,
                 streaming: false,
-                filterThinkingContent: this.config.filterThinkingContent
+                filterThinkingContent: this.config.filterThinkingContent,
+                extraRequestParams: this.config.extraRequestParams
             }, undefined, this.logger);
 
             const result = await detectionClient.translate(prompt);
@@ -191,7 +192,8 @@ export class TranslationService {
             temperature: this.config.temperature,
             maxTokens: this.config.maxTokens,
             streaming: this.config.streaming,
-            filterThinkingContent: this.config.filterThinkingContent
+            filterThinkingContent: this.config.filterThinkingContent,
+            extraRequestParams: this.config.extraRequestParams
         };
 
         // 仅支持 OpenAI

@@ -63,7 +63,8 @@ export class OpenAIClient extends BaseClient {
 
     private async doTranslateChatCompletions(prompt: string): Promise<TranslationResult> {
         const url = this.apiUrl;
-        const data = {
+        const data: Record<string, unknown> = {
+            ...(this.config.extraRequestParams ?? {}),
             model: this.config.modelName,
             messages: [{ role: 'user', content: prompt }],
             temperature: this.config.temperature ?? 0.5,
@@ -119,6 +120,7 @@ export class OpenAIClient extends BaseClient {
     private async doTranslateResponses(prompt: string): Promise<TranslationResult> {
         const url = this.apiUrl;
         const data: Record<string, unknown> = {
+            ...(this.config.extraRequestParams ?? {}),
             model: this.config.modelName,
             input: prompt,
             temperature: this.config.temperature ?? 0.5
@@ -211,7 +213,8 @@ export class OpenAIClient extends BaseClient {
 
         this.validateConfig();
         const url = this.apiUrl;
-        const data = {
+        const data: Record<string, unknown> = {
+            ...(this.config.extraRequestParams ?? {}),
             model: this.config.modelName,
             messages: [{ role: 'user', content: prompt }],
             temperature: this.config.temperature ?? 0.5,
