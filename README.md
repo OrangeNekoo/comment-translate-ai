@@ -40,6 +40,7 @@
 | `aiTranslate.largeModelTemperature` | 温度参数 (0-1)，较低值更确定，较高值更多样 | `0.5` |
 | `aiTranslate.namingRules` | 命名规则 | `default` |
 | `aiTranslate.streaming` | 启用流式传输 | `false` |
+| `aiTranslate.extraRequestParams` | 额外请求参数，支持传递厂商扩展参数（如 DashScope 的 enable_thinking） | `{}` |
 | `aiTranslate.filterThinkingContent` | 过滤深度思考内容 | `false` |
 | `aiTranslate.problemTranslateLang` | 问题面板翻译目标语言 | `none` |
 | `aiTranslate.customTranslatePrompt` | 自定义翻译提示词 | - |
@@ -136,6 +137,11 @@ src/
 欢迎提交 Issue 和 Pull Request！
 
 ## 📝 更新日志
+
+### 2.0.3
+
+- ✨ 新增 `aiTranslate.extraRequestParams` 配置项，支持向 OpenAI 兼容接口传递厂商扩展参数（如 DashScope 的 enable_thinking、enable_search 等）
+- 🛡️ 内置请求字段保持优先级，避免自定义参数覆盖核心字段
 
 ### 2.0.2
 

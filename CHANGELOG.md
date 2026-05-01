@@ -8,9 +8,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 - Initial release
 
+## [2.0.3] - 2026-05-01
+
 ### Changed
 
-- 🔧 修复 [#3](https://github.com/OrangeNekoo/comment-translate-ai/issues/3) 添加对OpenAI Responses API 接口的支持
+- ✨ 新增 `aiTranslate.extraRequestParams` 配置项，支持向 OpenAI 兼容接口传递厂商扩展参数（如 DashScope 的 enable_thinking、enable_search 等）
+- 🛡️ 内置请求字段保持优先级，避免自定义参数覆盖核心字段
 
 ## [2.0.2] - 2026-04-26
 

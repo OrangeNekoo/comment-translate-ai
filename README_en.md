@@ -40,6 +40,7 @@ Configure the following options in VS Code settings:
 | `aiTranslate.largeModelTemperature` | Temperature (0-1), lower for deterministic, higher for diverse | `0.5` |
 | `aiTranslate.namingRules` | Naming rules | `default` |
 | `aiTranslate.streaming` | Enable streaming | `false` |
+| `aiTranslate.extraRequestParams` | Extra request parameters for vendor-specific options (e.g., DashScope's enable_thinking) | `{}` |
 | `aiTranslate.filterThinkingContent` | Filter deep thinking content | `false` |
 | `aiTranslate.problemTranslateLang` | Problem panel translation target language | `none` |
 | `aiTranslate.customTranslatePrompt` | Custom translation prompt | - |
@@ -138,6 +139,11 @@ src/
 Issues and Pull Requests are welcome!
 
 ## 📝 Changelog
+
+### 2.0.3
+
+- ✨ Added `aiTranslate.extraRequestParams` configuration to support passing vendor-specific parameters to OpenAI-compatible APIs (e.g., DashScope's enable_thinking, enable_search)
+- 🛡️ Built-in request fields maintain priority to prevent custom parameters from overriding core fields
 
 ### 2.0.2
 
