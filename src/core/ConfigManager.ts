@@ -136,7 +136,7 @@ export class ConfigManager implements Disposable {
     }
 
     private isPlainObject(value: unknown): value is ExtraRequestParams {
-        return value === undefined || (typeof value === 'object' && value !== null && !Array.isArray(value));
+        return typeof value === 'object' && value !== null && !Array.isArray(value);
     }
 
     /**
